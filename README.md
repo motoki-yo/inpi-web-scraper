@@ -41,9 +41,9 @@ Siga estas etapas para utilizar o código de web scraping do INPI:
 
 No repositório onde se encontram o código e os arquivos, digite, no terminal (prompt de comando):
 
-     ```
-     python inpi_scraping.py
-     ```
+   ```
+   python inpi_scraping.py
+   ```
 
 Aqui está um exemplo de como utilizar o código:
 
