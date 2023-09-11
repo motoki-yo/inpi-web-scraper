@@ -1,5 +1,4 @@
 # ######################################################### #
-# ## Melissa Motoki Nogueira - 08/2023                   ## #
 # ## Web Scraping The INPI Site                          ## #
 # ######################################################### #
 
@@ -13,9 +12,7 @@ _base_url_ = "busca.inpi.gov.br"
 _headers_ = {"User-Agent":"Mozilla/5.0"}
 session = requests.Session()
 session.headers.update(_headers_)
-# Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lobortis tincidunt lobortis. 
-# Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce eget venenatis est. Nunc 
-# condimentum mattis sem, nec venenatis justo malesuada vitae.
+
 def login_request(url_part):
     # Envia uma requisição do tipo GET para obter os cookies de login
     retries = 3
@@ -32,9 +29,6 @@ def login_request(url_part):
             time.sleep(delay)
     return None  # Return None if retries are exhausted
 
-# Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lobortis tincidunt lobortis. 
-# Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce eget venenatis est. Nunc 
-# condimentum mattis sem, nec venenatis justo malesuada vitae.
 def result_url_request(url_part, cookies, pedido):
     # Prepare form data
     form_data = {
