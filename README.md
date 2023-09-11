@@ -1,57 +1,66 @@
-# inpi-web-scraper
+# README - Web Scraping do INPI
 
-![INPI Web Scraper](https://example.com/inpi-web-scraper.png) <!-- Substitua pelo link da imagem do repositório -->
+Este README fornece instruções sobre como utilizar o código de web scraping para extrair informações do site do INPI (Instituto Nacional da Propriedade Industrial).
 
-## Descrição
+## Descrição do Código
 
-O "inpi-web-scraper" é uma ferramenta em Python desenvolvida para realizar web scraping (raspagem de dados) do Instituto Nacional da Propriedade Industrial (INPI) do Brasil. Com essa aplicação, é possível automatizar a extração de informações sobre patentes, marcas e desenhos industriais registrados no site do INPI.
+O código Python fornecido utiliza as bibliotecas BeautifulSoup e Requests para realizar web scraping no site do INPI. Ele é capaz de realizar duas operações principais:
 
-## Principais Características
+1. **Extração de URLs**: Esta operação permite obter as URLs das patentes com base em números de protocolo fornecidos em um arquivo CSV de entrada. As URLs são então salvas em um arquivo CSV de saída.
 
-- Acesso automatizado: Obtenha dados valiosos do INPI sem intervenção manual.
-- Personalização: Realize consultas personalizadas com base em datas, categorias e palavras-chave.
-- Recursos avançados: Lida com elementos complexos de páginas da web, como AJAX e autenticação.
-- Documentação detalhada: Acompanhada de exemplos e tutoriais para facilitar o uso.
-- Atualizações regulares: O projeto é mantido ativamente, garantindo a compatibilidade contínua.
+2. **Extração de Dados**: Esta operação permite extrair informações detalhadas de patentes com base nas URLs fornecidas em um arquivo CSV de entrada. As informações extraídas incluem detalhes da patente, classificações IPC e CPC, dados do depositante, datas importantes e muito mais. Os dados extraídos são salvos em um arquivo CSV de saída.
 
 ## Instruções de Uso
 
-1. Clone o repositório:
-git clone https://github.com/seu-usuario/inpi-web-scraper.git
+Siga estas etapas para utilizar o código de web scraping do INPI:
 
+1. **Requisitos de Instalação**:
 
-2. Instale as dependências:
-pip install -r requirements.txt
+   - Certifique-se de ter o Python 3 instalado em seu sistema.
+   - Instale as bibliotecas necessárias executando o seguinte comando:
 
+     ```
+     pip install beautifulsoup4 requests
+     ```
 
-3. Execute o script de exemplo:
-python example.py
+2. **Preparação de Arquivos**:
 
+   - Crie um arquivo CSV de entrada contendo os números de protocolo das patentes que deseja consultar (uma patente por linha).
+   - Escolha ou crie um arquivo CSV de saída para armazenar as URLs extraídas ou os dados das patentes, dependendo da operação que deseja realizar.
 
-## Exemplo
+3. **Execução do Código**:
 
-```python
-from inpi_web_scraper import INPIWebScraper
+   - Execute o código Python fornecido, que solicitará informações como o nome do arquivo de entrada, o nome do arquivo de saída e a operação desejada (0 para Extração de URLs e 1 para Extração de Dados).
+   - O código realizará a operação escolhida e salvará os resultados no arquivo de saída especificado.
 
-# Crie uma instância do scraper
-scraper = INPIWebScraper()
+4. **Acompanhamento**:
 
-# Faça uma consulta de patentes
-patents = scraper.search_patents(keyword="energia solar", start_date="2022-01-01", end_date="2023-07-01")
+   - O progresso da execução será exibido no terminal, incluindo mensagens informativas e de erro.
 
-# Imprima os resultados
-for patent in patents:
- print(patent.title, patent.applicant, patent.filing_date)
-```
+## Exemplo de Uso
 
-## Contribuições
-Contribuições são bem-vindas! Sinta-se à vontade para enviar pull requests com melhorias, correções de bugs e novos recursos.
+Aqui está um exemplo de como utilizar o código:
 
-## Licença
-Este projeto está licenciado sob a MIT License.
+1. Crie um arquivo CSV de entrada chamado `patentes.csv` contendo os números de protocolo das patentes a serem consultadas.
 
-## Agradecimentos
-Agradecemos a todos os colaboradores que tornaram este projeto possível.
+2. Execute o código Python e siga as instruções. Por exemplo, para extrair URLs, você pode escolher a operação 0 e fornecer o nome do arquivo de entrada como `patentes.csv` e o nome do arquivo de saída como `urls.csv`.
 
-## Contato
-Para relatar problemas, sugestões ou dúvidas, abra uma issue ou entre em contato via e-mail: seuemail@example.com.
+3. O código realizará a extração e salvará as URLs no arquivo `urls.csv`.
+
+4. Para extrair dados detalhados, você pode escolher a operação 1 e fornecer os mesmos arquivos de entrada e saída.
+
+5. Os dados detalhados serão extraídos e salvos no arquivo `dados_patentes.csv`.
+
+Certifique-se de que os arquivos de entrada e saída estejam no mesmo diretório em que você executa o código.
+
+## Notas Importantes
+
+- O código utiliza o site do INPI para realizar web scraping, portanto, esteja ciente das políticas de uso e da possibilidade de bloqueio por parte do site do INPI se houver uso excessivo.
+
+- Este código é fornecido apenas para fins educacionais e de demonstração. Respeite os termos de uso e políticas de privacidade do site do INPI ao utilizá-lo.
+
+- Esteja ciente de que a estrutura do site do INPI pode mudar ao longo do tempo, o que pode exigir ajustes no código para garantir seu funcionamento correto.
+
+- O código pode ser modificado e personalizado de acordo com suas necessidades específicas.
+
+- Certifique-se de possuir as permissões necessárias para acessar e utilizar os dados do INPI.
