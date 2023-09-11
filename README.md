@@ -10,6 +10,8 @@ O código Python fornecido utiliza as bibliotecas BeautifulSoup e Requests para 
 
 2. **Extração de Dados**: Esta operação permite extrair informações detalhadas de patentes com base nas URLs fornecidas em um arquivo CSV de entrada. As informações extraídas incluem detalhes da patente, classificações IPC e CPC, dados do depositante, datas importantes e muito mais. Os dados extraídos são salvos em um arquivo CSV de saída.
 
+Ainda, são fornecidos alguns arquivos testes de entrada.
+
 ## Instruções de Uso
 
 Siga estas etapas para utilizar o código de web scraping do INPI:
