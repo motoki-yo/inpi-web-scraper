@@ -25,7 +25,7 @@ Siga estas etapas para utilizar o código de web scraping do INPI:
 
 2. **Preparação de Arquivos**:
 
-   - Crie um arquivo CSV de entrada contendo os números de protocolo das patentes que deseja consultar (uma patente por linha).
+   - Crie um arquivo CSV de entrada contendo os números de protocolo das patentes que deseja consultar (um código de patente por linha).
    - Escolha ou crie um arquivo CSV de saída para armazenar as URLs extraídas ou os dados das patentes, dependendo da operação que deseja realizar.
 
 3. **Execução do Código**:
@@ -38,6 +38,12 @@ Siga estas etapas para utilizar o código de web scraping do INPI:
    - O progresso da execução será exibido no terminal, incluindo mensagens informativas e de erro.
 
 ## Exemplo de Uso
+
+No repositório onde se encontram o código e os arquivos, digite, no terminal (prompt de comando):
+
+     ```
+     python inpi_scraping.py
+     ```
 
 Aqui está um exemplo de como utilizar o código:
 
