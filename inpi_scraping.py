@@ -1,22 +1,33 @@
-# ######################################################### #
-# ## Web Scraping The INPI Site                          ## #
-# ######################################################### #
+# ########################################################## #
+# ##                  Web Scraping Script                 ## #
+# ##               Author: Your Name Here                 ## #
+# ##               Date:   September, 2023                ## #
+# ##               Version: 1.0                           ## #
+# ##               Description:                           ## #
+# ##               This script performs web scraping      ## #
+# ##               of patent data from the INPI website.  ## #
+# ########################################################## #
 
+
+# Importação das bibliotecas necessárias
 from bs4 import BeautifulSoup
 import requests
 import re
 import csv
 import time
+import os
 
+# URL base e cabeçalhos para as requisições HTTP
 _base_url_ = "busca.inpi.gov.br"
 _headers_ = {"User-Agent":"Mozilla/5.0"}
 session = requests.Session()
 session.headers.update(_headers_)
 
+# Função para realizar uma requisição de login e obter os cookies
 def login_request(url_part):
     # Envia uma requisição do tipo GET para obter os cookies de login
     retries = 3
-    delay = 5  # seconds
+    delay = 5  # segundos
     for _ in range(retries):
         try:
             url = f"https://{_base_url_}{url_part}"
@@ -24,43 +35,45 @@ def login_request(url_part):
             cookies = login_response.cookies
             return cookies
         except requests.exceptions.ConnectionError as e:
-            print(f"Connection error: {e}")
-            print("Retrying in a moment...")
+            print(f"Erro de conexão: {e}")
+            print("Tentando novamente em um momento...")
             time.sleep(delay)
-    return None  # Return None if retries are exhausted
+    return None  # Retorna None se as tentativas se esgotarem
 
+# Função para realizar uma requisição de URL e extrair links
 def result_url_request(url_part, cookies, pedido):
-    # Prepare form data
+    # Preparação dos dados do formulário
     form_data = {
         "Action": "SearchBasico",
         "NumPedido": pedido,
         "RegisterPerPage": "20"
     }
 
-    # Submit the form using POST request
+    # Envio do formulário usando uma requisição POST
     url = f"https://{_base_url_}{url_part}"
     result_response = requests.post(url, data=form_data, cookies=cookies, headers=_headers_)
 
     time.sleep(3)
 
-    # Parse the response
+    # Análise da resposta HTML
     parsed_response = BeautifulSoup(result_response.content, "html.parser")
 
-    # find all the anchor tags with "href"  
-    # attribute starting with "/pePI/servlet/PatenteServletController"
+    # Encontrar todas as tags de âncora com atributo "href" começando com "/pePI/servlet/PatenteServletController"
     for link in parsed_response.find_all('a', attrs={'href': re.compile("^/pePI/servlet/PatenteServletController")}):
-        # display the actual urls
+        # Exibir as URLs encontradas
         print(link.get('href'))
         return link.get('href')
 
+# Função para realizar uma requisição de URL e extrair dados
 def result_data_request(row, cookies):
-    # Prepare dummy form data
+    # Preparação dos dados fictícios do formulário
     form_data = {
         "Action": "SearchBasico",
-        "NumPedido": "PI0406712", # não importa muito, só precisamos passar pelo site para prosseguir com a busca
+        "NumPedido": "PI0406712", # Não importa muito, só precisamos passar pelo site para prosseguir com a busca
         "RegisterPerPage": "20"
     }
-    # Submit the form using POST request
+
+    # Envio do formulário usando uma requisição POST
     url = f"https://{_base_url_}{'/pePI/servlet/PatenteServletController'}"
     result_response = requests.post(url, data=form_data, cookies=cookies, headers=_headers_)
 
@@ -68,14 +81,14 @@ def result_data_request(row, cookies):
 
     # Após isso, continua com a busca...
 
-    # Formata a URL da patente
-    # Extract the URL from the row list
-    url_part = row[0].strip()  # Remove any leading/trailing spaces
+    # Formatação da URL da patente
+    # Extrai a URL da lista de entrada
+    url_part = row[0].strip()  # Remove espaços em branco no início/fim
 
-    # Replace spaces with '%20'
+    # Substitui espaços por '%20'
     url_part_encoded = url_part.replace(" ", "%20")
 
-    # Concatenate the base URL with the encoded URL part
+    # Concatena a URL base com a parte da URL codificada
     url = f"https://{_base_url_}{url_part_encoded}"
     
     result_response = session.get(url, cookies=cookies, timeout=10)
@@ -84,12 +97,12 @@ def result_data_request(row, cookies):
     data_result = BeautifulSoup(result_response.content, "html.parser")
 
     country = number = date = "-"
-    # Find the relevant table row for priority information
+    # Encontrar a linha da tabela relevante para informações de prioridade
     priority_tag = data_result.find('font', class_='alerta', string='(30)')
     if priority_tag:
         priority_row = priority_tag.find_parent('tr')
 
-        # Extract values from the priority row
+        # Extrair valores da linha de prioridade
         if priority_row:
             priority_info = priority_row.find_all('font', class_='alerta')
             if len(priority_info) >= 6:
@@ -98,14 +111,13 @@ def result_data_request(row, cookies):
                 date = priority_info[6].get_text(strip=True)
 
     # Extração da classificação IPC
-    # Find the relevant table row for IPC classifications
     ipc_tag = data_result.find('font', class_='normal', string='Classificação IPC:')
     siglasIPC = []
     descIPC = []
 
     if ipc_tag:
         a_tags_with_onmouseout = data_result.select('a[onmouseout^="hideMe(\'classificacao"]')
-        # Extract the values inside the <a> tags
+        # Extrair os valores dentro das tags <a>
         siglasIPC = [a.get_text(strip=True) for a in a_tags_with_onmouseout]
         
         div_tags = ipc_tag.find_all_next('div', id=lambda x: x and x.startswith('classificacao'))
@@ -120,7 +132,7 @@ def result_data_request(row, cookies):
 
     if cpc_tag:
         a_tags_with_onmouseout = data_result.select('a[onmouseout^="hideMe(\'classificacaocpc"]')
-        # Extract the values inside the <a> tags
+        # Extrair os valores dentro das tags <a>
         siglasCPC = [a.get_text(strip=True) for a in a_tags_with_onmouseout]
         
         div_tags = ipc_tag.find_all_next('div', id=lambda x: x and x.startswith('classificacaocpc'))
@@ -153,8 +165,7 @@ def result_data_request(row, cookies):
     if data_result.find('font', class_='normal', string='Número Dividido:'):
         dividido = data_result.find('font', class_='normal', string='Número Dividido:').find_next('font', class_='normal').get_text(strip=True)
 
-
-    # Empty dictionary that will store the extracted data elements
+    # Dicionário vazio para armazenar os elementos de dados extraídos
     data = {
         "numeroPedido": data_result.find('font', class_='marcador').get_text(strip=True),                                                                           # (21)
         "dataDeposito": data_result.find('font', class_='normal', string='Data do Depósito:').find_next('font', class_='normal').get_text(strip=True),              # (22)
@@ -179,84 +190,102 @@ def result_data_request(row, cookies):
         "numeroDividido": dividido,
     }
     
-    #print("Pedido: ", data_result.find('font', class_='marcador').get_text(strip=True))
-    #print(data)
-    #print()
-
     return data
-    
-    
 
-# Extrai as URLs
-def url_scraping(input_filename, output_filename, cookies):
-    links = []
-    # Leitura do arquivo de entrada, contendo os números de protocolo das patentes
+# Função para realizar a raspagem das URLs
+def url_scraping(input_filename, output_filename, start_from, cookies):
+    # Verificar se o arquivo de saída já existe
+    file_exists = os.path.exists(output_filename)
+
     with open(input_filename, 'r') as file:
         csvreader = csv.reader(file)
+        
+        # Inicializar uma flag para determinar quando começar a escrever no arquivo de saída
+        start_writing = False
+
         for row in csvreader:
-            link = result_url_request("/pePI/servlet/PatenteServletController",cookies, row)
-            links.append(link)
+            # Se start_from estiver especificado e ainda não foi alcançado, continue para a próxima linha
+            if start_from and not start_writing:
+                if row[0] == start_from:
+                    start_writing = True
+                continue
 
-    with open(output_filename,'w') as file:
-        writer = csv.writer(file)
-        for link in links:
-            writer.writerow([link])
+            link = result_url_request("/pePI/servlet/PatenteServletController", cookies, row)
 
+            # Abrir o arquivo de saída no modo de anexar ('a') ou no modo de escrita ('w') conforme necessário
+            with open(output_filename, 'a' if file_exists else 'w', newline='') as output_file:
+                writer = csv.writer(output_file)
+                writer.writerow([link])
 
-# Extrai os dados
-def data_scraping(input_filename, output_filename, cookies):
+            file_exists = True  # O arquivo de saída agora existe
+
+# Função para realizar a raspagem dos dados
+def data_scraping(input_filename, output_filename, start_from, cookies):
+    # Verificar se o arquivo de saída já existe
+    file_exists = os.path.exists(output_filename)
+
     extracted_data = []
-    # Leitura do arquivo de entrada, contendo a URL de cada patente a ser consultada
+
     with open(input_filename, 'r') as file:
         csvreader = csv.reader(file)
+        
+        # Inicializar uma flag para determinar quando começar a escrever no arquivo de saída
+        start_writing = False
+
         for row in csvreader:
+            if not start_writing:
+                if row[0] == start_from:
+                    start_writing = True
+                continue
+
             if row:
-                extracted_data.append(result_data_request(row, cookies))
+                data = result_data_request(row[0], cookies)
+                extracted_data.append(data)
 
-    # Write the data to a CSV file with tab separator
-    with open(output_filename, 'w', newline='', encoding='utf-8') as csvfile:
-        csv_writer = csv.writer(csvfile, delimiter='\t')
+                # Abrir o arquivo de saída no modo de anexar ('a') ou no modo de escrita ('w') conforme necessário
+                with open(output_filename, 'a' if file_exists else 'w', newline='', encoding='utf-8') as csvfile:
+                    csv_writer = csv.writer(csvfile, delimiter='\t')
 
-        # Write the header row
-        header = extracted_data[0].keys()  # Assuming at least one row exists
-        csv_writer.writerow(header)
+                    # Se o arquivo de saída ainda não existe, escreva a linha de cabeçalho
+                    if not file_exists:
+                        header = data.keys()
+                        csv_writer.writerow(header)
+                        file_exists = True
 
-        # Write the data rows
-        for data_row in extracted_data:
-            row_values = [data_row[key] for key in header]
-            csv_writer.writerow(row_values)
-                    
+                    # Escrever a linha de dados
+                    row_values = [data[key] for key in header]
+                    csv_writer.writerow(row_values)
 
-
+# Função principal
 def main():
     # 1 - Passa pela página de login, obtendo os cookies necessários
     cookies = login_request("/pePI/servlet/LoginController?action=login")
     if cookies is None:
-        print("Unable to establish connection after retries.")
+        print("Não foi possível estabelecer conexão após as tentativas.")
     else:
-        print("Connection successful!")
+        print("Conexão bem-sucedida!")
         # 2 - Leitura de parâmetros
-        input_filename = str(input("Nome do arquivo de entrada: ")).rstrip() # nome do arquivo de entrada
-        output_filename = str(input("Nome do arquivo de saida: ")).rstrip() # nome do arquivo de saída
-        op = int(input("Operacao a ser realizada: ")) # i ∈ [0,1]
+        input_filename = str(input("Nome do arquivo de entrada: ")).rstrip() # Nome do arquivo de entrada
+        output_filename = str(input("Nome do arquivo de saída: ")).rstrip() # Nome do arquivo de saída
+        start_from = str(input("Primeira linha a ser lida: "))
+        op = int(input("Operação a ser realizada: ")) # i ∈ [0,1]
 
         # 3 - Direciona para a operação escolhida
         match op:
             case 0:
                 print("Realizando a extração de URL (OP: 0)")
                 print()
-                url_scraping(input_filename, output_filename, cookies)
+                url_scraping(input_filename, output_filename, start_from, cookies)
 
             case 1:
-                print("Realizando a extração de dados (op 1)")
+                print("Realizando a extração de dados (OP: 1)")
                 print()
-                data_scraping(input_filename, output_filename, cookies)
+                data_scraping(input_filename, output_filename, start_from, cookies)
             case _:
-                print("Operacao invalida")
+                print("Operação inválida")
         
         print("Raspagem de dados finalizada.")
 
-    
-
+# Executar a função principal se o script for executado diretamente
 if __name__ == "__main__":
     main()
