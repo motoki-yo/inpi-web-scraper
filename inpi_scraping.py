@@ -61,6 +61,7 @@ def result_url_request(url_part, cookies, pedido):
     # Encontrar todas as tags de âncora com atributo "href" começando com "/pePI/servlet/PatenteServletController"
     for link in parsed_response.find_all('a', attrs={'href': re.compile("^/pePI/servlet/PatenteServletController")}):
         # Exibir as URLs encontradas
+        print(link.get('href'))
         return link.get('href')
 
 # Função para realizar uma requisição de URL e extrair dados
@@ -153,12 +154,12 @@ def result_data_request(row, cookies):
     
     if data_result.find('font', class_='normal', string='PCT'):
         pct_number = data_result.find('font', class_='normal', string='PCT').find_next('font', class_='normal').find_next('font', class_='normal').get_text(strip=True)
-        pct_date = data_result.find('font', class_='normal', string='PCT').find_next('font', class_='normal').find_next('font', class_='normal').find_next('font', class_='normal').get_text(strip=True).split(":")[1].strip()
+        pct_date = data_result.find('font', class_='normal', string='PCT').find_next('font', class_='normal').find_next('font', class_='normal').find_next('font', class_='normal').find_next('font', class_='normal').get_text(strip=True)
         pct = [pct_number, pct_date]
 
     if data_result.find('font', class_='normal', string='W.O.'):
         wo_number = data_result.find('font', class_='normal', string='W.O.').find_next('font', class_='normal').find_next('font', class_='normal').get_text(strip=True)
-        wo_date = data_result.find('font', class_='normal', string='W.O.').find_next('font', class_='normal').find_next('font', class_='normal').find_next('font', class_='normal').get_text(strip=True).split(":")[1].strip()
+        wo_date = data_result.find('font', class_='normal', string='W.O.').find_next('font', class_='normal').find_next('font', class_='normal').find_next('font', class_='normal').find_next('font', class_='normal').get_text(strip=True)
         wo = [wo_number, wo_date]
 
     if data_result.find('font', class_='normal', string='Número Dividido:'):
